@@ -58,12 +58,14 @@ function InitUi() {
 
           IsTheGameEnd(CheckWinner());
 
-          if (currentPlayer == human) {
-            currentPlayer = ai;
-            AiTurn();
-          } else if (currentPlayer == ai) {
-            currentPlayer == human;
-            HumanTurn();
+          if (!gameOver) {
+            if (currentPlayer == human) {
+              currentPlayer = ai;
+              AiTurn();
+            } else if (currentPlayer == ai) {
+              currentPlayer == human;
+              HumanTurn();
+            }
           }
 
           this.removeEventListener("click", handler, false);
@@ -177,26 +179,73 @@ function HumanTurn() {
   currentPlayer = ai;
 }
 
-function AvaiableSpot() {
-  let unmarkSPot = null;
+function AiTurn() {
+  let bestScore = -Infinity;
+  let bestMove;
   for (let i = 0; i < rows; ++i) {
     for (let j = 0; j < cols; ++j) {
       if (board[i][j] == "") {
-        unmarkSPot = i * cols + j;
-        console.log(unmarkSPot, i, j);
-        return unmarkSPot;
+        board[i][j] = ai;
+        let score = minimax(false);
+        board[i][j] = "";
+        if (score > bestScore) {
+          bestScore = score;
+          bestMove = { i, j };
+        }
       }
     }
   }
-}
-
-function AiTurn() {
-  cells[AvaiableSpot()].click();
+  cells[bestMove.i * cols + bestMove.j].click();
   console.log("Current Player " + "human");
   currentPlayer = human;
 }
 
-function minimax() {}
+let scores = {
+  X: 1,
+  human: -1,
+  tie: 0
+};
+
+function minimax(isMaximaxing) {
+  // Base Case
+  let result = CheckWinner();
+  if (result != null) {
+    if (result == ai) {
+      return 1;
+    } else if (result == human) {
+      return -1;
+    }
+    return 0;
+  }
+
+  if (isMaximaxing) {
+    let bestScore = -Infinity;
+    for (let i = 0; i < rows; ++i) {
+      for (let j = 0; j < cols; ++j) {
+        if (board[i][j] == "") {
+          board[i][j] = ai;
+          let score = minimax(false);
+          board[i][j] = "";
+          bestScore = Math.max(score, bestScore);
+        }
+      }
+    }
+    return bestScore;
+  } else {
+    let bestScore = Infinity;
+    for (let i = 0; i < rows; ++i) {
+      for (let j = 0; j < cols; ++j) {
+        if (board[i][j] == "") {
+          board[i][j] = human;
+          let score = minimax(true);
+          board[i][j] = "";
+          bestScore = Math.min(score, bestScore);
+        }
+      }
+    }
+    return bestScore;
+  }
+}
 
 function InitGame() {
   InitPlayers();
