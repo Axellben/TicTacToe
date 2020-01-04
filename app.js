@@ -1,14 +1,77 @@
 const boardUI = document.querySelector("#board");
+const markBtns = document.querySelectorAll(".markBtn");
+const resetBtn = document.querySelector("#restart");
+
+let cells;
 
 let board;
 const rows = 3,
   cols = 3;
 
-let players = ["X", "O"];
+let human;
+let ai;
+
 let currentPlayer;
 let gameOver = false;
 
-InitGame();
+function InitPlayers() {
+  for (let i = 0; i < markBtns.length; ++i) {
+    markBtns[i].addEventListener("click", function handler() {
+      if (this.textContent == "O") {
+        markBtns[0].classList.remove("selected");
+        markBtns[1].classList.remove("selected");
+        this.classList.add("selected");
+        human = "O";
+        ai = "X";
+        currentPlayer = ai;
+        markBtns[0].removeEventListener("click", handler, false);
+        markBtns[1].removeEventListener("click", handler, false);
+        AiTurn();
+      }
+    });
+  }
+
+  human = "X";
+  ai = "O";
+  currentPlayer = human;
+  console.log("Current Player " + "human");
+
+  resetBtn.addEventListener("click", function() {
+    location.reload();
+  });
+}
+
+function InitUi() {
+  for (let i = 0; i < rows; ++i) {
+    let row = boardUI.insertRow(-1);
+    for (let j = 0; j < cols; ++j) {
+      let cell = row.insertCell(-1);
+      if (i < rows - 1 && j < cols) cell.classList.add("horizontal");
+      if (i < rows && j > 0 && j < cols - 1) cell.classList.add("vertical");
+      cell.classList.add("cell");
+
+      cell.addEventListener("click", function handler() {
+        // Do until is not Game Over
+        if (!gameOver) {
+          this.innerHTML = currentPlayer;
+          board[i][j] = currentPlayer;
+
+          IsTheGameEnd(CheckWinner());
+
+          if (currentPlayer == human) {
+            currentPlayer = ai;
+            AiTurn();
+          } else if (currentPlayer == ai) {
+            currentPlayer == human;
+            HumanTurn();
+          }
+
+          this.removeEventListener("click", handler, false);
+        }
+      });
+    }
+  }
+}
 
 function InitBoard(rows, cols) {
   board = new Array(rows);
@@ -18,33 +81,25 @@ function InitBoard(rows, cols) {
       board[i][j] = "";
     }
   }
+}
 
-  for (let i = 0; i < rows; ++i) {
-    let row = boardUI.insertRow(-1);
-    for (let j = 0; j < cols; ++j) {
-      let cell = row.insertCell(-1);
-      if (i < rows - 1 && j < cols) cell.classList.add("horizontal");
-      if (i < rows && j > 0 && j < cols - 1) cell.classList.add("vertical");
+function IsTheGameEnd(winner) {
+  switch (winner) {
+    case "X":
+      console.log("X");
+      gameOver = true;
+      break;
+    case "O":
+      console.log("O");
+      gameOver = true;
+      break;
+    case "tie":
+      console.log("tie");
+      gameOver = true;
+      break;
 
-      cell.addEventListener("click", function handler() {
-        let mark = players[currentPlayer];
-        currentPlayer = Number(!currentPlayer);
-
-        this.innerHTML = mark;
-        board[i][j] = mark;
-
-        let winner = CheckWinner();
-
-        if (winner == "X") {
-          console.log("X");
-          gameOver = true;
-        } else if (winner == "O") {
-          console.log("O");
-          gameOver = true;
-        }
-        this.removeEventListener("click", handler, false);
-      });
-    }
+    default:
+      break;
   }
 }
 
@@ -93,8 +148,6 @@ function CheckWinner() {
   }
 
   // //Check the second diagonal
-  // console.log(board[cols - 1][cols - 1]);
-
   if (board[0][cols - 1] != "") {
     let winner = true;
     let mark = board[0][cols - 1];
@@ -107,10 +160,51 @@ function CheckWinner() {
     }
     if (winner) return mark;
   }
-  return "";
+
+  //Check for a tie
+  let markSpots = 0;
+  for (let i = 0; i < rows; ++i) {
+    for (let j = 0; j < cols; ++j) {
+      if (board[i][j] != "") markSpots++;
+    }
+  }
+
+  return markSpots == rows * cols ? "tie" : null;
 }
 
-function InitGame() {
-  InitBoard(rows, cols);
-  currentPlayer = Math.floor(Math.random() * 2);
+function HumanTurn() {
+  console.log("Current Player " + "ai");
+  currentPlayer = ai;
 }
+
+function AvaiableSpot() {
+  let unmarkSPot = null;
+  for (let i = 0; i < rows; ++i) {
+    for (let j = 0; j < cols; ++j) {
+      if (board[i][j] == "") {
+        unmarkSPot = i * cols + j;
+        console.log(unmarkSPot, i, j);
+        return unmarkSPot;
+      }
+    }
+  }
+}
+
+function AiTurn() {
+  cells[AvaiableSpot()].click();
+  console.log("Current Player " + "human");
+  currentPlayer = human;
+}
+
+function minimax() {}
+
+function InitGame() {
+  InitPlayers();
+  InitUi();
+  InitBoard(rows, cols);
+}
+
+window.addEventListener("DOMContentLoaded", event => {
+  InitGame();
+  cells = document.querySelectorAll(".cell");
+});
