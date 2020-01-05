@@ -27,6 +27,7 @@ td {
   text-align: center;
   transition: all 0.3s;
   font-weight: 700;
+  cursor: pointer;
 }
 /*
 table {
@@ -78,10 +79,19 @@ button {
   -moz-transition: all 0.3s;
   outline: none;
   font-size: 150%;
+  cursor: pointer;
 }
 
 @media only screen and (min-width: 1000px) {
   td {
     font-size: 2em;
   }
+}
+
+.winner {
+  background-color: steelblue;
+  width: 25%;
+  margin: 20px auto;
+  font-size: 1em;
+  color: aliceblue;
 }

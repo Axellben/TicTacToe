@@ -1,6 +1,7 @@
 const boardUI = document.querySelector("#board");
 const markBtns = document.querySelectorAll(".markBtn");
 const resetBtn = document.querySelector("#restart");
+const message = document.querySelector("#message");
 
 let cells;
 
@@ -90,14 +91,20 @@ function IsTheGameEnd(winner) {
     case "X":
       console.log("X");
       gameOver = true;
+      message.innerHTML = "X WINS";
+      message.classList.add("winner");
       break;
     case "O":
       console.log("O");
       gameOver = true;
+      message.innerHTML = "O WINS";
+      message.classList.add("winner");
       break;
     case "tie":
       console.log("tie");
       gameOver = true;
+      message.innerHTML = "IT'S A TIE";
+      message.classList.add("winner");
       break;
 
     default:
